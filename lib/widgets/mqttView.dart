@@ -274,9 +274,10 @@ class _MQTTViewState extends State<MQTTView> {
       leakString = "Rò rỉ";
       NotificationService().showLocalNotification(
           id: 0,
-          title: "Drink Water",
-          body: "Time to drink some water!",
-          payload: "You just took water! Huurray!");
+          title: "Cảnh báo!",
+          body: "Phát hiện rò rỉ nước!",
+          payload: "detected",
+          seconds: 1);
     } else {
       leakIcon = Icons.house;
       leakString = "Bình thường";

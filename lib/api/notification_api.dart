@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:rxdart/subjects.dart';
+import 'package:timezone/data/latest_all.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
+import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 
 class NotificationService {
   NotificationService();
@@ -8,6 +11,7 @@ class NotificationService {
   final BehaviorSubject<String> behaviorSubject = BehaviorSubject();
 
   final _localNotifications = FlutterLocalNotificationsPlugin();
+
   Future<void> initializePlatformNotifications() async {
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('ic_launcher');
@@ -17,6 +21,12 @@ class NotificationService {
       android: initializationSettingsAndroid,
     );
 
+    tz.initializeTimeZones();
+    tz.setLocalLocation(
+      tz.getLocation(
+        await FlutterNativeTimezone.getLocalTimezone(),
+      ),
+    );
     await _localNotifications.initialize(
       initializationSettings,
       onSelectNotification: selectNotification,
@@ -55,14 +65,19 @@ class NotificationService {
     required String title,
     required String body,
     required String payload,
+    required int seconds,
   }) async {
     final platformChannelSpecifics = await _notificationDetails();
-    await _localNotifications.show(
+    await _localNotifications.zonedSchedule(
       id,
       title,
       body,
+      tz.TZDateTime.now(tz.local).add(Duration(seconds: seconds)),
       platformChannelSpecifics,
       payload: payload,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      androidAllowWhileIdle: true,
     );
   }
 

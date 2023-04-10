@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.flutter_learn_the_basics">
    <application
-        android:label="flutter_learn_the_basics"
+        android:label="Water Meter Monitor"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

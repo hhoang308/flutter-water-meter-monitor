@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_learn_the_basics/api/notification_api.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_learn_the_basics/mqtt/state/MQTTAppState.dart';
 import 'package:flutter_learn_the_basics/mqtt/MQTTManager.dart';
@@ -16,9 +17,11 @@ class MQTTView extends StatefulWidget {
 class _MQTTViewState extends State<MQTTView> {
   late MQTTAppState currentAppState;
   late MQTTManager manager;
-
+  late NotificationService notificationService;
   @override
   void initState() {
+    notificationService = NotificationService();
+    notificationService.initializePlatformNotifications();
     super.initState();
 
     /*
@@ -179,7 +182,11 @@ class _MQTTViewState extends State<MQTTView> {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(icon, color: color),
+        Icon(
+          icon,
+          color: color,
+          size: 40,
+        ),
         Container(
           child: Text(
             label,
@@ -196,8 +203,10 @@ class _MQTTViewState extends State<MQTTView> {
 
   Widget _buildSensorValueDisplay([String text = "bat:0,vol:0,sig:0,leak:0"]) {
     late List pairs = text.split(",");
+    late IconData batteryIcon, signalIcon, leakIcon;
     // print(pairs);
     late String battery, volume, signal, leak;
+
     if (pairs.length < 4) {
       battery = volume = signal = leak = "0";
     } else {
@@ -219,6 +228,59 @@ class _MQTTViewState extends State<MQTTView> {
     }
 
     double money = double.parse(volume);
+
+    double batteryInt = double.parse(battery);
+    int signalInt = int.parse(signal);
+    int leakInt = int.parse(leak);
+    String batteryString, signalString, leakString;
+    if (batteryInt > 2.8) {
+      if (batteryInt > 3.1) {
+        batteryIcon = Icons.battery_6_bar_rounded;
+        batteryString = "Tuyệt vời";
+      } else {
+        batteryIcon = Icons.battery_4_bar_rounded;
+        batteryString = "Tốt";
+      }
+    } else {
+      if (batteryInt < 2.6) {
+        batteryIcon = Icons.battery_2_bar_rounded;
+        batteryString = "Trung bình";
+      } else {
+        batteryIcon = Icons.battery_1_bar_rounded;
+        batteryString = "Kém";
+      }
+    }
+
+    if (signalInt > 10) {
+      if (signalInt > 20) {
+        signalIcon = Icons.signal_cellular_alt_rounded;
+        signalString = "Tuyệt vời";
+      } else {
+        signalIcon = Icons.signal_cellular_alt_2_bar_rounded;
+        signalString = "Tốt";
+      }
+    } else {
+      if (signalInt > 5) {
+        signalIcon = Icons.signal_cellular_alt_1_bar_rounded;
+        signalString = "Trung bình";
+      } else {
+        signalIcon = Icons.signal_cellular_0_bar;
+        signalString = "Kém";
+      }
+    }
+
+    if (leakInt == 1) {
+      leakIcon = Icons.water_damage_rounded;
+      leakString = "Rò rỉ";
+      NotificationService().showLocalNotification(
+          id: 0,
+          title: "Drink Water",
+          body: "Time to drink some water!",
+          payload: "You just took water! Huurray!");
+    } else {
+      leakIcon = Icons.house;
+      leakString = "Bình thường";
+    }
 
     if (money < 10) {
       money = money * 5.937;
@@ -258,11 +320,9 @@ class _MQTTViewState extends State<MQTTView> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             _buildSensorColumn(Colors.blue, Icons.water_drop, volume),
-            _buildSensorColumn(
-                Colors.blue, Icons.battery_4_bar_rounded, battery),
-            _buildSensorColumn(
-                Colors.blue, Icons.signal_cellular_4_bar_rounded, signal),
-            _buildSensorColumn(Colors.blue, Icons.water_damage, leak),
+            _buildSensorColumn(Colors.blue, batteryIcon, batteryString),
+            _buildSensorColumn(Colors.blue, signalIcon, signalString),
+            _buildSensorColumn(Colors.blue, leakIcon, leakString),
             _buildSensorColumn(Colors.blue, Icons.timer, formattedDate),
           ],
         ),

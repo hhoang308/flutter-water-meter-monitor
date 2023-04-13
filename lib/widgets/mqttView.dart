@@ -64,7 +64,8 @@ class _MQTTViewState extends State<MQTTView> {
         titleSection,
         _buildConnectionStateText(
             _prepareStateMessageFrom(currentAppState.getAppConnectionState)),
-        _buildSensorValueDisplay(currentAppState.getReceivedText),
+        _buildSensorValueDisplay(
+            currentAppState.getReceivedText, currentAppState.getDate),
         _buildEditableColumn(),
         const Spacer(
           flex: 1,
@@ -201,7 +202,7 @@ class _MQTTViewState extends State<MQTTView> {
     );
   }
 
-  Widget _buildSensorValueDisplay([String text = "bat:0,vol:0,sig:0,leak:0"]) {
+  Widget _buildSensorValueDisplay(String text, String date) {
     late List pairs = text.split(",");
     late IconData batteryIcon, signalIcon, leakIcon;
     // print(pairs);
@@ -272,12 +273,12 @@ class _MQTTViewState extends State<MQTTView> {
     if (leakInt == 1) {
       leakIcon = Icons.water_damage_rounded;
       leakString = "Rò rỉ";
-      NotificationService().showLocalNotification(
-          id: 0,
-          title: "Cảnh báo!",
-          body: "Phát hiện rò rỉ nước!",
-          payload: "detected",
-          seconds: 1);
+      // NotificationService().showLocalNotification(
+      //     id: 0,
+      //     title: "Cảnh báo!",
+      //     body: "Phát hiện rò rỉ nước!",
+      //     payload: "detected",
+      //     seconds: 1);
     } else {
       leakIcon = Icons.house;
       leakString = "Bình thường";
@@ -294,8 +295,7 @@ class _MQTTViewState extends State<MQTTView> {
     }
     String inString = money.toStringAsFixed(4);
     double indouble = double.parse(inString);
-    DateTime now = DateTime.now();
-    String formattedDate = DateFormat('kk:mm:ss').format(now);
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
@@ -324,7 +324,7 @@ class _MQTTViewState extends State<MQTTView> {
             _buildSensorColumn(Colors.blue, batteryIcon, batteryString),
             _buildSensorColumn(Colors.blue, signalIcon, signalString),
             _buildSensorColumn(Colors.blue, leakIcon, leakString),
-            _buildSensorColumn(Colors.blue, Icons.timer, formattedDate),
+            _buildSensorColumn(Colors.blue, Icons.timer, date),
           ],
         ),
         Row(

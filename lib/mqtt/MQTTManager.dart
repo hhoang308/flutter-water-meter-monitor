@@ -1,6 +1,8 @@
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:flutter_learn_the_basics/mqtt/state/MQTTAppState.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
+import 'package:flutter_learn_the_basics/api/notification_api.dart';
+import 'package:intl/intl.dart';
 
 class MQTTManager {
   // Private instance of client
@@ -43,6 +45,8 @@ class MQTTManager {
         .withWillQos(MqttQos.atLeastOnce);
     //print('Client connecting....');
     _client.connectionMessage = connMess;
+    late NotificationService notificationService = NotificationService();
+    notificationService.initializePlatformNotifications();
   }
 
   // Connect to the host
@@ -92,9 +96,33 @@ class MQTTManager {
       final String pt =
           MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
       _currentState.setReceivedText(pt);
-      //print(
-      //    'EXAMPLE::Change notification:: topic is <${c[0].topic}>, payload is <-- $pt -->');
-      //print('');
+      List pairs = pt.split(",");
+
+      // print(pairs);
+      String leak;
+
+      if (pairs.length < 4) {
+        leak = "0";
+      } else {
+        leak = pairs[3];
+        int idxLeak = leak.indexOf(":");
+        leak = leak.substring(idxLeak + 1).trim();
+      }
+      if (leak == "1") {
+        NotificationService().showLocalNotification(
+            id: 0,
+            title: "Cảnh báo!",
+            body: "Phát hiện rò rỉ nước!",
+            payload: "detected",
+            seconds: 1);
+      }
+      DateTime now = DateTime.now();
+      String formattedDate = DateFormat('kk:mm:ss').format(now);
+      _currentState.setDate(formattedDate);
+      print("$formattedDate");
+      print(
+          'EXAMPLE::Change notification:: topic is <${c[0].topic}>, payload is <-- $pt -->');
+      print('');
     });
     // print(
     //     'EXAMPLE::OnConnected client callback - Client connection was sucessful');

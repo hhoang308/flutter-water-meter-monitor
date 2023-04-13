@@ -4,6 +4,7 @@ import 'package:flutter_learn_the_basics/mqtt/state/MQTTAppState.dart';
 import 'package:flutter_learn_the_basics/widgets/mqttView.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 

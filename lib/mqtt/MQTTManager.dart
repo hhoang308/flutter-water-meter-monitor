@@ -100,19 +100,34 @@ class MQTTManager {
 
       // print(pairs);
       String leak;
+      String battery;
 
       if (pairs.length < 4) {
         leak = "0";
+        battery = "0";
       } else {
         leak = pairs[3];
         int idxLeak = leak.indexOf(":");
         leak = leak.substring(idxLeak + 1).trim();
+
+        battery = pairs[0];
+        int idxBattery = battery.indexOf(":");
+        battery = battery.substring(idxBattery + 1).trim();
       }
+      double batteryInt = double.parse(battery);
       if (leak == "1") {
         NotificationService().showLocalNotification(
             id: 0,
             title: "Cảnh báo!",
             body: "Phát hiện rò rỉ nước!",
+            payload: "detected",
+            seconds: 1);
+      }
+      if (batteryInt < 2.6 && batteryInt > 0) {
+        NotificationService().showLocalNotification(
+            id: 1,
+            title: "Cảnh báo!",
+            body: "Pin yếu!",
             payload: "detected",
             seconds: 1);
       }

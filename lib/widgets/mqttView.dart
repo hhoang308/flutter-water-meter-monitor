@@ -243,7 +243,7 @@ class _MQTTViewState extends State<MQTTView> {
         batteryString = "Tốt";
       }
     } else {
-      if (batteryInt < 2.6) {
+      if (batteryInt > 2.6) {
         batteryIcon = Icons.battery_2_bar_rounded;
         batteryString = "Trung bình";
       } else {
